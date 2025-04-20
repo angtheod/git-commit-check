@@ -1,0 +1,4 @@
+.idea
+scripts/config.sh
+scripts/hooks/pre-commit
+.DS_Store

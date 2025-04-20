@@ -1,0 +1,78 @@
+#!/bin/sh
+# [project]
+PROJECT_PATH="../.."
+cd "$PROJECT_PATH" || exit
+
+# [interface]
+COMPACT=0
+WIDTH=80
+
+# [checks]
+BACKEND_SYNTAX_ENABLED=1
+BACKEND_SYNTAX_HEADER="header_1"                                  # ex. header_1: PHP SYNTAX
+BACKEND_SYNTAX_COMMAND="command_1"                                # ex. command_1: php -l -d display_errors=0
+BACKEND_SYNTAX_VERSION=$(version_command_1)                       # ex. version_command_1: php -r 'echo phpversion();'
+BACKEND_SYNTAX_TOOL="tool"                                        # ex. tool: PHP
+
+BACKEND_STANDARDS_ENABLED=1
+BACKEND_STANDARDS_HEADER="header_2"
+BACKEND_STANDARDS_COMMAND="command_2"
+BACKEND_STANDARDS_VERSION=$(version_command_2)
+BACKEND_STANDARDS_TOOL="tool"
+
+BACKEND_TESTS_ENABLED=1
+BACKEND_TESTS_HEADER="header_3"                                   # ex. header_3: PHPUNIT TESTS
+BACKEND_TESTS_COMMAND="command_3"                                 # ex. command_3: ./vendor/bin/phpunit --colors
+BACKEND_TESTS_CONFIG="path/to/config-file"                        # ex. path/to/config-file: phpunit.xml
+BACKEND_TESTS_ENV="path/to/env-file"                              # ex. path/to/env-file: .env.my-tests
+BACKEND_TESTS_VERSION=$(version_command_3)                        # ex. version_command_3: ./vendor/bin/phpunit '--version'
+BACKEND_TESTS_TOOL="tool"                                         # ex. tool: PHPUnit
+
+BACKEND_DEPENDENCIES_ENABLED=1
+BACKEND_DEPENDENCIES_HEADER="header_4"
+BACKEND_DEPENDENCIES_COMMAND="command_4"
+BACKEND_DEPENDENCIES_AUDIT="path/to/audit-file"
+BACKEND_DEPENDENCIES_VERSION=$(version_command_4)
+BACKEND_DEPENDENCIES_TOOL="tool"
+
+FRONTEND_DEPENDENCIES_ENABLED=1
+FRONTEND_DEPENDENCIES_HEADER="header_5"                           # ex. header_5: FRONTEND PACKAGES AUDIT
+FRONTEND_DEPENDENCIES_COMMAND="command_5"                         # ex. command_5: npm audit --json --audit-level=low
+FRONTEND_DEPENDENCIES_AUDIT="path/to/audit-file"                  # ex. path/to/audit-file: ./audits/package-audit.json
+FRONTEND_DEPENDENCIES_VERSION=$(version_command_5)                # ex. version_command_5: node --version
+FRONTEND_DEPENDENCIES_VERSION_2=$(version_command_5_2)            # ex. version_command_5: npm --version
+FRONTEND_DEPENDENCIES_TOOL="tool"                                 # ex. tool: Node
+FRONTEND_DEPENDENCIES_TOOL_2="tool_2"                             # ex. tool_2: NPM
+
+# [colors]
+RED="\e[0;31m"
+BRED="\e[1;31m"     #Bold red
+GREEN="\e[0;32m"
+YELLOW="\e[0;33m"
+CYAN="\e[0;36m"
+BOLD="\e[1m"
+NC="\e[0m"          #No color/modifier
+
+# [symbols]
+SECTION_SYMBOL=""
+HEADER_SYMBOL=➡️
+#HEADER_SYMBOL=■
+MESSAGE_SYMBOL=""
+LOG_SYMBOL=📋
+TIME_SYMBOL=🕒
+LOAD_SYMBOL=⌛
+PASS_SYMBOL=🟢
+WARN_SYMBOL=🟡
+FAIL_SYMBOL=🔴
+#PASS_SYMBOL=✅
+#WARN_SYMBOL=⚠️
+#FAIL_SYMBOL=❌
+
+# [log]
+LOG=1
+LOG_FILE="./path/to/log-file"
+LOG_FORMAT="[%s] local.%s: %s\nMessage: %s" # datetime, log level, header, message
+
+# [log-viewer]
+LOG_VIEWER=1
+LOG_VIEWER_URL="https://www.example.com"
