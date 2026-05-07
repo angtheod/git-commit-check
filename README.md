@@ -4,17 +4,15 @@
 
 ---
 
-- Download the files and place the scripts directory and the gitcc.sh shell script within your repo.
+- Download the files and place the scripts directory and the gitcc shell script within your repo.
 
 - Run the following commands to copy the pre-commit hook script example and the config example files
-and edit their values according to your project.
+  and edit their values according to your project.
 
 ```
-cp scripts/hooks/pre-commit.example scripts/hooks/pre-commit
-cp scripts/config.sh.example scripts/config.sh
+cp hooks/pre-commit.example hooks/pre-commit
+cp config.sh.example config.sh
 ```
 - Run the following command to instruct git to call `gitcc` before allowing the developer to create a new commit.
 
-`git config core.hooksPath scripts/hooks`
-
-
+`git config core.hooksPath hooks`

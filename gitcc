@@ -1,0 +1,82 @@
+#!/bin/sh
+# Git Commit Check (gitcc)
+# Version: 0.2.0
+# Author: Angelos Theodorakopoulos <angtheod@gmail.com>
+
+# Change to the directory of the script and source the required scripts.
+cd "$(dirname "$0")" || exit 1
+. ./config.sh
+cd "$(dirname "$0")" || exit 1
+. ./lib.sh
+
+header() {
+  line3 "╔" "╗" $((WIDTH+8)) "═"
+
+  if [ "$COMPACT" = 0 ]; then
+    printf "  %s${CYAN}Load\n" "$SECTION_SYMBOL"
+    line "Configuration" "${1:-./config.sh}"
+  fi
+}
+
+about() {
+  [ "$COMPACT" = 1 ] && return
+
+  printf "\n  %s${CYAN}About\n" "$SECTION_SYMBOL"
+
+  line "$BACKEND_SYNTAX_TOOL" "$BACKEND_SYNTAX_VERSION"
+  line "$FRAMEWORK_TOOL" "$(extract_version "$FRAMEWORK_VERSION")"
+  line "$BACKEND_STANDARDS_TOOL" "$(extract_version "$BACKEND_STANDARDS_VERSION")"
+  line "$BACKEND_TESTS_TOOL" "$(extract_version "$BACKEND_TESTS_VERSION")"
+  line "$BACKEND_DEPENDENCIES_TOOL" "$(extract_version "$BACKEND_DEPENDENCIES_VERSION")"
+  line "$FRONTEND_DEPENDENCIES_TOOL" "$(extract_version "$FRONTEND_DEPENDENCIES_VERSION")"
+  line "$FRONTEND_DEPENDENCIES_TOOL_2" "$(extract_version "$FRONTEND_DEPENDENCIES_VERSION_2")"
+}
+
+footer() {
+  line3 "╚" "╝" $((WIDTH+8)) "═"
+
+  END=$(date +%s)
+  time=$((END-START))
+  [ $LOG_VIEWER = 1 ] && line3 "$LOG_SYMBOL $LOG_VIEWER_URL" "$TIME_SYMBOL ${time}sec" "$((WIDTH+7))" " "
+}
+
+check() {
+  [ "$COMPACT" = 0 ] && [ "$ENABLED" != "" ] && printf "\n  %s${CYAN}Check${NC}\n" "$SECTION_SYMBOL"
+  [ "$LOG" = 1 ] && log info "══════════════" ""
+
+  # Directly run all scripts (without any extra logic such as contains_string).
+  #[ "$ENABLED" != "" ] && find "$GITCC_PATH/scripts" -type f -name '*.sh' | sort -h | xargs -L 1 -d '\n' sh;
+
+  if [ "$ENABLED" != "" ]; then
+    for script in $(find "$GITCC_SCRIPTS_PATH" -type f -name '*.sh' | sort); do
+      _name=$(basename "$script")
+      _id="${_name%%_*}"
+      # Check if the script is enabled in the configuration and then
+      # source the script so that it runs in the same shell process and the variables are accessible within it.
+      contains_string "$_id" "$ENABLED" && . "$script"
+    done
+  fi
+}
+
+init() {
+  START=$(date +%s)
+  HAS_ERRORS=0
+  STAGED_PHP_FILES=$(git diff --cached --name-only --diff-filter=ACMR HEAD | grep .php)
+  HAS_SYNTAX_ERRORS=0
+}
+
+main() {
+  init
+  header
+  about
+  check
+  footer
+
+  if [ "$HAS_ERRORS" -ne 0 ]; then
+    exit 1
+  fi
+}
+
+main
+
+exit $?

@@ -1,0 +1,25 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (as of version 0.1.0).
+
+## [0.2.0] `2026-05-07`
+
+### Added
+- Add a changelog file.
+
+### Changed
+- Allow dynamically adding/removing checks by placing/removing scripts from the scripts directory.
+- Separate the checks logic into separate files that can be enabled/disabled via configuration.
+- Move the configuration file to the root of the repository.
+- Move the lib script to the root of the repository.
+- Move the hooks directory to the root of the repository.
+- Rename main script to gitcc.
+- Optimize for performance.
+
+## [0.1.0] `2025-04-20`
+
+### Added
+- A POSIX-compliant shell script for running configurable and extendable pre-commit checks on your local git repository.
