@@ -1,6 +1,49 @@
 #!/bin/sh
 cd "$PROJECT_PATH" || exit
 
+line() {
+  left="$1"
+  right="$2"
+
+  printf "${NC}  %s" "$left"
+  fill "$left" "$right"
+  printf "${CYAN}%s\n" "$right"
+}
+
+line2() {
+  left="$1"
+  right="$2"
+
+  printf "  %s%s${NC}" "$HEADER_SYMBOL " "$left"
+  fill "$left" "$right"
+  printf "%s" "$right"
+}
+
+line3() {
+  left="$1"
+  right="$2"
+  width="${3:-$WIDTH}"
+  filler="${4:-.}"
+
+  printf "%s" "$left"
+  fill "$left" "$right" "$width" "$filler"
+  printf "%s\n" "$right"
+}
+
+contains_string() {
+  _string="$2"
+  _substring="$1"
+
+  case "$_string" in
+  *"$_substring"*)
+    return 0  # Found
+    ;;
+  *)
+    return 1  # Not found
+    ;;
+  esac
+}
+
 extract_version() {
   if [ $# -eq 0 ]; then
     printf "(Unknown)\n"
@@ -69,19 +112,19 @@ log() {
   logFile="${4:-${LOG_FILE}}"
 
   case "$level" in  # Validate log level
-    info|warning|error)
-      ;;
-    *)
-      printf "Invalid log level: %s. Must be info, warning, or error" "$level" >&2
-      return 1
-      ;;
+  info|warning|error)
+    ;;
+  *)
+    printf "Invalid log level: %s. Must be info, warning, or error" "$level" >&2
+    return 1
+    ;;
   esac
 
   dateTime=$(date "+%Y-%m-%d %H:%M:%S")
 
   logEntry=$(printf "$LOG_FORMAT" "$dateTime" "${level}" "${header}" "$message")
-#  logEntry="[${dateTime}] local.${level}: ${header}
-#  Message: ${message}"
+  #  logEntry="[${dateTime}] local.${level}: ${header}
+  #  Message: ${message}"
 
   # Pass log output from sed to remove control chars and color codes
   printf "%s\n" "$(printf "%s" "$logEntry" | sed -e "s/\x1b\[.\{1,5\}m//g")" >> "$logFile"
@@ -99,4 +142,22 @@ message() {
     [ "$COMPACT" = 0 ] && printf "   $text\n"
     [ "$LOG" = 1 ] && log "$level" "$titleOrText" "$text"
   fi
+}
+
+pass() {
+  sek=$((sek-1))
+  printf "\b%s\n" "$PASS_SYMBOL"
+}
+
+warn() {
+  sek=$((sek-1))
+  printf "\b%s\n" "$WARN_SYMBOL"
+  message warning "${1}" "${2}"
+}
+
+fail() {
+  sek=$((sek-1))
+  printf "\b%s\n" "$FAIL_SYMBOL"
+  message error "${1}" "${2}"
+  HAS_ERRORS=1
 }
