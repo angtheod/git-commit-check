@@ -1,20 +1,17 @@
 #!/bin/sh
-# This is the script for the pre-commit git hook
-# To instruct git to use this script run `git config core.hooksPath hooks`
+# Script for the pre-commit git hook.
+# To configure git to run this script before each commit, run `git config core.hooksPath hooks`
 
+# [pre-commit]
+PROJECT_PATH="/path/to/project"          # Absolute path to the project, e.g. /var/www/my-project
+GITCC_PATH="path/to/gitcc"               # Relative path to the project, e.g. "bin/git-commit-check"
 CONTAINER_ENGINE=$(which docker 2>/dev/null || which podman 2>/dev/null)
-PROJECT_PATH="/path/to/project"
 CONTAINER_NAME="container_name"
 SHELL="/bin/sh"
-COMMAND="vendor/bin/gitcc"
-#DOCKER_COMPOSE_PATH="/path/to/docker-compose.yml"
-#CONTAINER_SERVICE="container_service_name"
+COMMAND="$PROJECT_PATH/$GITCC_PATH/gitcc"
 
 if [ -z "$CONTAINER_ENGINE" ]; then
-    vendor/bin/gitcc
+    eval "$COMMAND"
 else
     $CONTAINER_ENGINE exec -tw "$PROJECT_PATH" "$CONTAINER_NAME" "$SHELL" -c "$COMMAND"
-    #Same but using Dockers compose plugin (if installed)
-    #cd "$DOCKER_COMPOSE_PATH" || exit 1
-    #docker compose exec -Tw "$PROJECT_PATH" "$CONTAINER_SERVICE" "$SHELL" -c "$COMMAND"
 fi
