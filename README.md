@@ -4,15 +4,19 @@
 
 ---
 
-- Download the files and place the scripts directory and the gitcc shell script within your repo.
+- Download the git-commit-check directory and place it within your repo (e.g. `path/to/your/repo/bin/git-commit-check`)
 
 - Run the following commands to copy the pre-commit hook script example and the config example files
   and edit their values according to your project.
 
+Let's assume you placed gitcc files under the bin directory of your repo:
 ```
-cp hooks/pre-commit.example hooks/pre-commit
-cp config.sh.example config.sh
+cd path/to/your/repo
+cp bin/git-commit-check/hooks/pre-commit.example bin/git-commit-check/hooks/pre-commit
+cp bin/git-commit-check/config.sh.example bin/git-commit-check/config.sh
 ```
 - Run the following command to instruct git to call `gitcc` before allowing the developer to create a new commit.
 
-`git config core.hooksPath hooks`
+```
+git config core.hooksPath bin/git-commit-check/hooks`
+```
