@@ -1,13 +1,13 @@
 #!/bin/sh
 # [general]
-PROJECT_PATH="path/to/project"
-GITCC_PATH="path/to/gitcc"      # relative to the project path
+PROJECT_PATH="/path/to/project"          # Absolute path to the project, e.g. /var/www/my-project
+GITCC_PATH="path/to/gitcc"               # Relative path to the project, e.g. "bin/git-commit-check"
 GITCC_REPORTS_PATH="$GITCC_PATH/reports"
 GITCC_SCRIPTS_PATH="$GITCC_PATH/scripts"
+
 cd "$PROJECT_PATH" || exit
 
-# [scripts]
-# Include the ids of those scripts that should be executed.
+# [script IDs] - Include the ids of those scripts that should be executed.
 ENABLED="01,02,03,04,05"
 
 # [about]

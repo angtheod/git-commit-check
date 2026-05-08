@@ -1,6 +1,6 @@
 #!/bin/sh
 # Git Commit Check (gitcc)
-# Version: 0.2.0
+# Version: 0.3.0
 # Author: Angelos Theodorakopoulos <angtheod@gmail.com>
 
 # Change to the directory of the script and source the required scripts.
