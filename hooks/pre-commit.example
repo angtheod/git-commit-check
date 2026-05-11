@@ -3,15 +3,15 @@
 # To configure git to run this script before each commit, run `git config core.hooksPath hooks`
 
 # [pre-commit]
-PROJECT_PATH="/path/to/project"          # Absolute path to the project, e.g. /var/www/my-project
-GITCC_PATH="path/to/gitcc"               # Relative path to the project, e.g. "bin/git-commit-check"
+PROJECT_PATH="/path/to/project" # Absolute path to the project, e.g. /var/www/my-project
+GITCC_PATH="path/to/gitcc"      # Relative path to the project, e.g. "bin/git-commit-check"
 CONTAINER_ENGINE=$(which docker 2>/dev/null || which podman 2>/dev/null)
 CONTAINER_NAME="container_name"
 SHELL="/bin/sh"
-COMMAND="$PROJECT_PATH/$GITCC_PATH/gitcc"
+COMMAND="$GITCC_PATH/gitcc"
 
 if [ -z "$CONTAINER_ENGINE" ]; then
-    eval "$COMMAND"
+    $COMMAND
 else
     $CONTAINER_ENGINE exec -tw "$PROJECT_PATH" "$CONTAINER_NAME" "$SHELL" -c "$COMMAND"
 fi

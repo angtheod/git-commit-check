@@ -7,35 +7,21 @@ GITCC_SCRIPTS_PATH="$GITCC_PATH/scripts"
 
 cd "$PROJECT_PATH" || exit
 
-# [script IDs] - Include the ids of those scripts that should be executed.
-ENABLED="01,02,03,04,05"
-
-# [about]
-BACKEND_SYNTAX_VERSION=$(php -r 'echo phpversion();')
-BACKEND_SYNTAX_TOOL="PHP"
-FRAMEWORK_VERSION=$(php artisan --version)
-FRAMEWORK_TOOL="Laravel"
-BACKEND_STANDARDS_VERSION=$(./vendor/bin/phpcs '--version')
-BACKEND_STANDARDS_TOOL="CodeSniffer"
-BACKEND_TESTS_VERSION=$(./vendor/bin/phpunit '--version')
-BACKEND_TESTS_TOOL="PHPUnit"
-BACKEND_DEPENDENCIES_VERSION=$(composer '--version' 2>&1 | head -n 1)
-BACKEND_DEPENDENCIES_TOOL="Composer"
-FRONTEND_DEPENDENCIES_VERSION=$(node --version)
-FRONTEND_DEPENDENCIES_TOOL="Node"
-FRONTEND_DEPENDENCIES_VERSION_2=$(npm --version)
-FRONTEND_DEPENDENCIES_TOOL_2="NPM"
+# [script IDs] - Set the ids of those scripts that should be executed. To disable all scripts, set an empty string.
+ENABLED="01,02,03,04,05,06,07,08,09"
 
 # [interface]
-COMPACT=0
+SHOW_OUTPUT=1
+SHOW_ABOUT=1
+SHOW_LOG_URL=1
 WIDTH=93
 RED="\e[0;31m"
-BRED="\e[1;31m"     #Bold red
+BRED="\e[1;31m"     # Bold red.
 GREEN="\e[0;32m"
 YELLOW="\e[0;33m"
 CYAN="\e[0;36m"
 BOLD="\e[1m"
-NC="\e[0m"          #No color/modifier
+NC="\e[0m"          # No color/modifier.
 SECTION_SYMBOL=""
 HEADER_SYMBOL=➡️
 MESSAGE_SYMBOL=""
@@ -43,7 +29,9 @@ LOG_SYMBOL=📋
 TIME_SYMBOL=🕒
 LOAD_SYMBOL=⌛
 PASS_SYMBOL=🟢
+#PASS_SYMBOL=🔵
 WARN_SYMBOL=🟡
+#WARN_SYMBOL=🟠
 FAIL_SYMBOL=🔴
 
 # [log]
@@ -51,6 +39,5 @@ LOG=1
 LOG_FILE="./path/to/log-file"
 LOG_FORMAT="[%s] local.%s: %s\nMessage: %s" # datetime, log level, header, message
 
-# [log-viewer]
-LOG_VIEWER=1
-LOG_VIEWER_URL="https://www.example.com"
+# [log link]
+LOG_URL="https://www.example.com/logs"

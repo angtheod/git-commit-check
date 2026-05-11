@@ -2,10 +2,12 @@
 # [Init]
 HEADER="FRONTEND DEPENDENCIES"
 COMMAND="npm audit --json --audit-level=low"
-REPORT="$GITCC_REPORTS_PATH/package-audit.json"
+line2 "$HEADER" "$LOAD_SYMBOL"
+add_about_info "NPM" "$(npm --version)"
+add_about_info "Node" "$(node --version)"
 
 # [Run]
-line2 "$HEADER" "$LOAD_SYMBOL"
+REPORT="$GITCC_REPORTS_PATH/package-audit.json"
 
 ${COMMAND} > $REPORT 2>&1
 
@@ -27,5 +29,7 @@ if [ "$total" -ne 0 ]; then
     See ${BOLD}${REPORT}${NC}"
     return
 fi
+
+log info "$HEADER" "Pass."
 
 pass

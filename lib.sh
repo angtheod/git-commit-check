@@ -1,6 +1,9 @@
 #!/bin/sh
 cd "$PROJECT_PATH" || exit
 
+ABOUT=""
+DELIMITER="<>"
+
 line() {
   left="$1"
   right="$2"
@@ -30,6 +33,24 @@ line3() {
   printf "%s\n" "$right"
 }
 
+# Concatenate the Left/Right strings to the about section data.
+add_about_info() {
+  ABOUT_LEFT="$1"
+  ABOUT_RIGHT="$2"
+
+  if [ -z "$ABOUT" ]; then
+    ABOUT="$ABOUT_LEFT|$ABOUT_RIGHT"
+  else
+    ABOUT="$ABOUT$DELIMITER$ABOUT_LEFT|$ABOUT_RIGHT"
+  fi
+}
+
+# Split the about section data into strings that can be used to generate a new line in the about section.
+split_about_info() {
+  printf '%s\n' "$ABOUT" | tr -s "$DELIMITER" '\n'
+}
+
+# Return 1 if the 2nd argument contains the 1st argument. Return 0 otherwise.
 contains_string() {
   _string="$2"
   _substring="$1"
@@ -44,6 +65,7 @@ contains_string() {
   esac
 }
 
+# Extract the version of an application from a command output.
 extract_version() {
   if [ $# -eq 0 ]; then
     printf "(Unknown)\n"
@@ -51,16 +73,19 @@ extract_version() {
   fi
 
   version=$(printf "%s" "$1" | sed -n '
-    # Match either:
-    # 1. A "v" followed by version numbers after non-digit
-    # 2. Version numbers preceded by non-digit
-    # 3. Version numbers at string start
-    s/^.*[^0-9]v\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*$/\1/p
-    t
-    s/^.*[^0-9]\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*$/\1/p
-    t
-    s/^v\{0,1\}\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*$/\1/p
-  ')
+      # Match either:
+      # 1. Version numbers preceded by /
+      # 2. A "v" followed by version numbers after non-digit
+      # 3. Version numbers preceded by non-digit
+      # 4. Version numbers at string start
+      s/^.*\/\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*$/\1/p
+      t
+      s/^.*[^0-9]v\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*$/\1/p
+      t
+      s/^.*[^0-9]\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*$/\1/p
+      t
+      s/^v\{0,1\}\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*$/\1/p
+    ')
 
   if [ -z "$version" ]; then
     printf "(Unknown)\n"
@@ -70,8 +95,7 @@ extract_version() {
   printf "%s" "$version"
 }
 
-# Fills a line in the terminal with $4 chars until it reaches $WIDTH in length
-# (including the left and right side lengths).
+# Fill a line in the terminal with $4 chars until it reaches $WIDTH in length (including the left and right side).
 fill() {
   left="$1"
   right="$2"
@@ -88,6 +112,7 @@ fill() {
   done
 }
 
+# Parse the output of npm audit and provide concise information.
 parse_npm_audit() {
   if [ $# -eq 0 ]; then
     printf "Error: No input file specified"
@@ -104,7 +129,7 @@ parse_npm_audit() {
   total=$(printf '%s' "$auditFile" | jq -r .metadata.vulnerabilities.total)
 }
 
-# Creates a Log entry according to config value LOG_FORMAT and redirects to config value LOG_FILE
+# Create a Log file entry according to config value LOG_FORMAT and redirects to config value LOG_FILE
 log() {
   level="$1"
   header="$2"
@@ -123,8 +148,6 @@ log() {
   dateTime=$(date "+%Y-%m-%d %H:%M:%S")
 
   logEntry=$(printf "$LOG_FORMAT" "$dateTime" "${level}" "${header}" "$message")
-  #  logEntry="[${dateTime}] local.${level}: ${header}
-  #  Message: ${message}"
 
   # Pass log output from sed to remove control chars and color codes
   printf "%s\n" "$(printf "%s" "$logEntry" | sed -e "s/\x1b\[.\{1,5\}m//g")" >> "$logFile"
@@ -135,11 +158,12 @@ message() {
   titleOrText="$2"
   text="$3"
 
-  if [ "$#" -eq 2 ] && [ "$COMPACT" = 0 ]; then
+  if [ "$#" -eq 2 ] && [ "$SHOW_OUTPUT" = 1 ]; then
     printf "   %s\n" "$titleOrText"
   fi
+
   if [ "$#" -eq 3 ]; then
-    [ "$COMPACT" = 0 ] && printf "   $text\n"
+    [ "$SHOW_OUTPUT" = 1 ] && printf "   $text\n"
     [ "$LOG" = 1 ] && log "$level" "$titleOrText" "$text"
   fi
 }
@@ -147,6 +171,7 @@ message() {
 pass() {
   sek=$((sek-1))
   printf "\b%s\n" "$PASS_SYMBOL"
+  [ -n "$1" ] && message info "${1}" "${2}"
 }
 
 warn() {
