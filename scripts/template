@@ -1,0 +1,17 @@
+#!/bin/sh
+# [Init] TODO - 1. Configure the values of the following variables/commands according to your needs.
+HEADER="MY HEADER"
+COMMAND="my_command"
+line2 "$HEADER" "$LOAD_SYMBOL"
+# Here you can configure gitcc to print a relevant line in the about section (typically with command name and version).
+add_about_info "command name" "$(command --version)"
+# If your script performs more than 1 check, then you can call the add_about_info function multiple times.
+add_about_info "command2 name" "$(command2 --version)"
+
+# [Run] TODO - 2. Add script logic here.
+
+# ...
+
+pass # TODO - 3. Call the 'pass' function at the end of the script, after your script has passed all checks successfully.
+
+# pass "$HEADER" "Pass." # Optionally, you may pass 2 arguments to the 'pass' function to create a log file entry.

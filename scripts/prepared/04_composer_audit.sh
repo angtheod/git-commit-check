@@ -2,15 +2,16 @@
 # [Init]
 HEADER="BACKEND DEPENDENCIES"
 COMMAND="composer audit --no-cache --format=json"
-REPORT="$GITCC_REPORTS_PATH/composer-audit.json"
+line2 "$HEADER" "$LOAD_SYMBOL"
+add_about_info "Composer" "$(composer '--version' 2>&1 | head -n 1)"
 
 # [Run]
-line2 "$HEADER" "$LOAD_SYMBOL"
-
 if (! composer --version | grep -q "2\.[4-9]") > /dev/null 2>&1; then
     fail "$HEADER" " ${MESSAGE_SYMBOL}Composer audit requires version 2.4 or later"
     return
 fi
+
+REPORT="$GITCC_REPORTS_PATH/composer-audit.json"
 
 ${COMMAND} > $REPORT 2>&1
 
@@ -36,5 +37,7 @@ if [ "$advisories" -ne 0 ]; then
     See ${BOLD}${REPORT}${NC}"
     return
 fi
+
+log info "$HEADER" "Pass."
 
 pass
