@@ -1,42 +1,47 @@
 #!/bin/sh
-# [Init]
-HEADER="BACKEND SYNTAX"
-COMMAND="php -l -d display_errors=0"
-line2 "$HEADER" "$LOAD_SYMBOL"
-add_about_info "PHP" "$(php -r 'echo phpversion();')"
+# [Initialise]
+before_run() {
+    HEADER="BACKEND SYNTAX"
+    COMMAND="php -l -d display_errors=0"
+    COMMAND_NAME="PHP"
+    COMMAND_VERSION="$(php --version)"
+}
 
-# [Run]
-STAGED_PHP_FILES=$(git diff --cached --name-only --diff-filter=ACMR HEAD | grep .php)
-output=""
+# [Execute]
+run() {
+    FILE_TYPES=".php"
+    STAGED_PHP_FILES=$(git diff --cached --name-only --diff-filter=ACMR HEAD | grep "$FILE_TYPES")
+    output=""
 
-if [ -z "$STAGED_PHP_FILES" ]; then
-    warn "$HEADER" "No staged PHP files."
-    return
-fi
-
-shouldFail=0
-tempFile=$(mktemp)
-
-for PHP_FILE in $STAGED_PHP_FILES; do
-    ${COMMAND} ./"$PHP_FILE" > "$tempFile" 2>&1
-    exitStatus=$?
-    output="$output\n"$(head -n 2 "$tempFile")
-
-    if [ $exitStatus -ne 0 ]; then
-        shouldFail=1
+    if [ -z "$STAGED_PHP_FILES" ]; then
+        warn "$HEADER" "No staged $FILE_TYPES files."
+        return
     fi
-done
 
-rm "$tempFile"
+    shouldFail=0
+    tempFile=$(mktemp)
 
-if [ "$shouldFail" -ne 0 ]; then
-    HAS_SYNTAX_ERRORS=1
-    fail "$HEADER" "$output\n"
-    return
-else
-    add_about_info "Laravel" "$(php artisan --version)"
-fi
+    for PHP_FILE in $STAGED_PHP_FILES; do
+        ${COMMAND} ./"$PHP_FILE" >"$tempFile" 2>&1
 
-log info "$HEADER" "Pass."
+        exit=$?
 
-pass
+        if [ "$exit" -ne 0 ]; then
+            shouldFail=1
+        fi
+
+        output="$output\n"$(head -n 2 "$tempFile")
+    done
+
+    rm "$tempFile"
+
+    if [ "$shouldFail" -ne 0 ]; then
+        HAS_SYNTAX_ERRORS=1
+        fail "$HEADER" "$output\n"
+        return
+    fi
+
+    log info "$HEADER" "Pass."
+
+    pass
+}

@@ -4,7 +4,7 @@
 
 # [pre-commit]
 PROJECT_PATH="/path/to/project" # Absolute path to the project, e.g. /var/www/my-project
-GITCC_PATH="path/to/gitcc"      # Relative path to the project, e.g. "bin/git-commit-check"
+GITCC_PATH="path/to/gitcc"      # Relative path to the project, e.g. "bin/gitcc"
 CONTAINER_ENGINE=$(which docker 2>/dev/null || which podman 2>/dev/null)
 CONTAINER_NAME="container_name"
 SHELL="/bin/sh"

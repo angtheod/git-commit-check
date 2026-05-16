@@ -1,18 +1,24 @@
 #!/bin/sh
-# [Init]
-HEADER="FRONTEND BUILD"
-COMMAND="vite build"
-line2 "$HEADER" "$LOAD_SYMBOL"
-add_about_info "Vite" "$(vite --version)"
+# [Initialise]
+before_run() {
+    HEADER="FRONTEND BUILD"
+    COMMAND="vite build"
+    COMMAND_NAME="Vite"
+    COMMAND_VERSION="$(vite --version)"
+}
 
-# [Run]
-output=$(${COMMAND} 2>&1)
+# [Execute]
+run() {
+    output=$(${COMMAND} 2>&1)
 
-if [ $? -ne 0 ]; then
-    fail "$HEADER" "$output"
-    return
-fi
+    exit=$?
 
-log info "$HEADER" "$output"
+    if [ "$exit" -ne 0 ]; then
+        fail "$HEADER" "$output"
+        return
+    fi
 
-pass
+    log info "$HEADER" "$output"
+
+    pass
+}

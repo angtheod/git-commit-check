@@ -1,18 +1,24 @@
 #!/bin/sh
-# [Init]
-HEADER="FRONTEND TYPES"
-COMMAND="tsc --noEmit"
-line2 "$HEADER" "$LOAD_SYMBOL"
-add_about_info "TypeScript" "$(tsc --version)"
+# [Initialise]
+before_run() {
+    HEADER="FRONTEND TYPES"
+    COMMAND="tsc --noEmit"
+    COMMAND_NAME="TypeScript"
+    COMMAND_VERSION="$(tsc --version)"
+}
 
-# [Run]
-output=$(${COMMAND} 2>&1)
+# [Execute]
+run() {
+    output=$(${COMMAND} 2>&1)
 
-if [ $? -ne 0 ]; then
-    fail "$HEADER" "$output"
-    return
-fi
+    exit=$?
 
-log info "$HEADER" "Pass."
+    if [ "$exit" -ne 0 ]; then
+        fail "$HEADER" "$output"
+        return
+    fi
 
-pass
+    log info "$HEADER" "Pass."
+
+    pass
+}
