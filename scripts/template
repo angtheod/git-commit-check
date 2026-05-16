@@ -1,17 +1,36 @@
 #!/bin/sh
-# [Init] TODO - 1. Configure the values of the following variables/commands according to your needs.
-HEADER="MY HEADER"
-COMMAND="my_command"
-line2 "$HEADER" "$LOAD_SYMBOL"
-# Here you can configure gitcc to print a relevant line in the about section (typically with command name and version).
-add_about_info "command name" "$(command --version)"
-# If your script performs more than 1 check, then you can call the add_about_info function multiple times.
-add_about_info "command2 name" "$(command2 --version)"
+# [Initialise] TODO - 1. Implement function 'before_run'. Fill in the values for the following variables.
+before_run() {
+  HEADER="MY HEADER"
+  COMMAND="my_command"
+  COMMAND_NAME="My Command"
+  COMMAND_VERSION="$(my_command --version)"
+}
 
-# [Run] TODO - 2. Add script logic here.
+# [Execute] # TODO - 2. Implement function 'run'. Add script's custom logic here.
+run() {
+  # ...
 
-# ...
+  # TODO - 3. Pass the command output to a variable and if not successful call the 'fail' function. Typical use case:
+  output=$(${COMMAND} 2>&1)
 
-pass # TODO - 3. Call the 'pass' function at the end of the script, after your script has passed all checks successfully.
+  exit=$?
 
-# pass "$HEADER" "Pass." # Optionally, you may pass 2 arguments to the 'pass' function to create a log file entry.
+  if [ "$exit" -ne 0 ]; then
+    fail "$HEADER" "$output"
+    return
+  fi
+
+  log info "$HEADER" "Pass." # TODO - 4. Optional: Log a success message or the command's successful output.
+
+  pass # TODO - 5. Call the 'pass' function at the end of the script.
+
+  # pass "$HEADER" "Pass." # Alternatively, you may pass 2 arguments
+  # to the 'pass' function to show a message and create a log file entry.
+}
+
+# [Finalise] TODO - 6. Optional: Implement function 'after_run' to perform post-check actions.
+after_run() {
+  # For example, you may call the add_about_info function multiple times to print multiple lines in the about section.
+  add_about_info "command2 name" "$(command2 --version)"
+}
