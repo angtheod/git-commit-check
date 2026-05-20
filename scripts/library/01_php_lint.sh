@@ -4,7 +4,7 @@ before_run() {
     HEADER="BACKEND SYNTAX"
     COMMAND="php -l -d display_errors=0"
     COMMAND_NAME="PHP"
-    COMMAND_VERSION="$(php --version)"
+    COMMAND_VERSION="php --version"
 }
 
 # [Execute]
@@ -14,7 +14,7 @@ run() {
     output=""
 
     if [ -z "$STAGED_PHP_FILES" ]; then
-        warn "$HEADER" "No staged $FILE_TYPES files."
+        __warn "$HEADER" " No staged $FILE_TYPES files."
         return
     fi
 
@@ -37,11 +37,11 @@ run() {
 
     if [ "$shouldFail" -ne 0 ]; then
         HAS_SYNTAX_ERRORS=1
-        fail "$HEADER" "$output\n"
+        __fail "$HEADER" "$output\n"
         return
     fi
 
-    log info "$HEADER" "Pass."
+    __log info "$HEADER" "Pass."
 
-    pass
+    __pass
 }

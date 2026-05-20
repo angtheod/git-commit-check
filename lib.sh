@@ -4,37 +4,51 @@ cd "$PROJECT_PATH" || exit
 ABOUT=""
 DELIMITER="<>"
 
-line() {
+__get_current_shell() {
+    if [ -n "$BASH_VERSION" ]; then
+        echo "bash"
+    elif [ -n "$ZSH_VERSION" ]; then
+        echo "zsh"
+    elif [ -n "$KSH_VERSION" ]; then
+        echo "ksh"
+    elif [ -n "$FISH_VERSION" ]; then
+        echo "fish"
+    else # Fallback method
+        ps -p $$ -o comm= 2>/dev/null || echo "(Unknown)"
+    fi
+}
+
+__line() {
     left="$1"
     right="$2"
 
     printf "${NC}  %s" "$left"
-    fill "$left" "$right"
+    __fill "$left" "$right"
     printf "${CYAN}%s\n" "$right"
 }
 
-line2() {
+__line2() {
     left="$1"
     right="$2"
 
-    printf "  %s%s${NC}" "$HEADER_SYMBOL " "$left"
-    fill "$left" "$right"
+    printf "  %s$CYAN%s${NC}" "$HEADER_SYMBOL  " "$left"
+    __fill "$left  " "$right"
     printf "%s" "$right"
 }
 
-line3() {
+__line3() {
     left="$1"
     right="$2"
     width="${3:-$WIDTH}"
     filler="${4:-.}"
 
     printf "%s" "$left"
-    fill "$left" "$right" "$width" "$filler"
+    __fill "$left" "$right" "$width" "$filler"
     printf "%s\n" "$right"
 }
 
 # Concatenate the Left/Right strings to the about section data.
-add_about_info() {
+__add_about_info() {
     ABOUT_LEFT="$1"
     ABOUT_RIGHT="$2"
 
@@ -46,46 +60,56 @@ add_about_info() {
 }
 
 # Split the about section data into strings that can be used to generate a new line in the about section.
-split_about_info() {
+__split_about_info() {
     # The trailing newline ensures 'while read' receives the last segment.
     printf "%s\n" "$(printf '%s' "$ABOUT" | tr -s "\n" ' ' | tr -s "$DELIMITER" '\n')"
 }
 
-# Return 1 if the 2nd argument contains the 1st argument. Return 0 otherwise.
-contains_string() {
-    _string="$2"
+# Return 1 (error command code) if 1st arg is Found within 2nd arg, but it is preceded with a '#',
+# else return 0 (success command code) if 1st arg is Found within 2nd arg,
+# else return 1 (error command code) if 1st arg is Not Found within 2nd arg.
+__contains_string() {
     _substring="$1"
+    _string="$2"
 
     case "$_string" in
+    *"#${_substring}"*)
+        return 1  # Found but starts with '#', so it's disabled.
+        ;;
     *"$_substring"*)
-        return 0  # Found
+        return 0  # Found.
         ;;
     *)
-        return 1  # Not found
+        return 1  # Not found.
         ;;
     esac
 }
 
 # Extract the version of an application from a command output.
-extract_version() {
+__extract_version() {
     if [ $# -eq 0 ]; then
         printf "(Unknown)\n"
         return 1
     fi
 
     version=$(printf "%s" "$1" | sed -n '
+      # Stop after first match using "q" command
       # Match either:
       # 1. Version numbers preceded by /
-      # 2. A "v" followed by version numbers after non-digit
-      # 3. Version numbers preceded by non-digit
-      # 4. Version numbers at string start
       s/^.*\/\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*$/\1/p
-      t
+      t found
+      # 2. A "v" followed by version numbers after non-digit
       s/^.*[^0-9]v\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*$/\1/p
-      t
+      t found
+      # 3. Version numbers preceded by non-digit
       s/^.*[^0-9]\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*$/\1/p
-      t
+      t found
+      # 4. Version numbers at string start
       s/^v\{0,1\}\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*$/\1/p
+      t found
+      b
+      :found
+      q
     ')
 
     if [ -z "$version" ]; then
@@ -97,7 +121,7 @@ extract_version() {
 }
 
 # Fill a line in the terminal with $4 chars until it reaches $WIDTH in length (including the left and right side).
-fill() {
+__fill() {
     left="$1"
     right="$2"
     width="${3:-$WIDTH}"
@@ -114,7 +138,7 @@ fill() {
 }
 
 # Parse the output of npm audit and provide concise information.
-parse_npm_audit() {
+__parse_npm_audit() {
     if [ $# -eq 0 ]; then
         printf "Error: No input file specified"
         printf "Usage: %s npm-report.json" "$0"
@@ -136,8 +160,56 @@ parse_npm_audit() {
     total=$(printf '%s' "$auditFile" | jq -r '.metadata.vulnerabilities.total // 0')
 }
 
+__before_run() {
+    if [ $# -eq 0 ]; then
+        printf "(Unknown)\n"
+        return 1
+    fi
+
+    script=$1
+
+    # Initialise variables.
+    HEADER=""
+    COMMAND_NAME=""
+    COMMAND_VERSION=""
+
+    . "$script"
+
+    before_run # Call user's before run function.
+
+    __line2 "$HEADER" "$LOAD_SYMBOL"
+}
+
+# Execute the user-defined $COMMAND, hold the output, and check the exit code.
+# If the command failed, then call __fail with either a proper message OR the command's output.
+# If the command succeeded, then create an info log entry and call __pass with a message to show (if available).
+__run() {
+    output=$(${COMMAND} 2>&1)
+
+    exit=$?
+
+    if [ "$exit" -eq 127 ]; then
+        __fail "$HEADER" "  $COMMAND_NAME not found."
+        return
+    elif [ "$exit" -ne 0 ]; then
+        __fail "$HEADER" "$output"
+        return
+    fi
+
+    __log info "$HEADER" "$output"
+
+    __pass "$@"
+}
+
+# Execute post-check actions (e.g., add a line in the about section).
+__after_run() {
+    if [ "$COMMAND_NAME" != "" ] && [ "$COMMAND_VERSION" != "" ]; then
+        __add_about_info "$COMMAND_NAME" "$COMMAND_VERSION"
+    fi
+}
+
 # Create a Log file entry according to config value LOG_FORMAT and redirects to config value LOG_FILE
-log() {
+__log() {
     level="$1"
     header="$2"
     message="$3"
@@ -147,7 +219,7 @@ log() {
     info|warning|error)
         ;;
     *)
-        printf "Invalid log level: %s. Must be info, warning, or error" "$level" >&2
+        printf "  Invalid log level: %s. Must be info, warning, or error.\n" "$level" >&2
         return 1
         ;;
     esac
@@ -160,7 +232,7 @@ log() {
     printf "%s\n" "$(printf "%s" "$logEntry" | sed -e "s/\x1b\[.\{1,5\}m//g")" >> "$logFile"
 }
 
-message() {
+__message() {
     level="$1"
     titleOrText="$2"
     text="$3"
@@ -171,25 +243,37 @@ message() {
 
     if [ "$#" -eq 3 ]; then
         [ "$SHOW_OUTPUT" = 1 ] && printf "   $text\n"
-        [ "$LOG" = 1 ] && log "$level" "$titleOrText" "$text"
+        [ "$LOG" = 1 ] && __log "$level" "$titleOrText" "$text"
     fi
 }
 
-pass() {
+__pass() {
     sek=$((sek-1))
     printf "\b%s\n" "$PASS_SYMBOL"
-    [ -n "$1" ] && message info "${1}" "${2}"
+    [ -n "$1" ] && __message info "${1}" "${2}"
+
+    if [ -z "$2" ] || [ "$SHOW_OUTPUT" -eq 0 ]; then
+        printf "\n"
+    fi
 }
 
-warn() {
+__warn() {
     sek=$((sek-1))
     printf "\b%s\n" "$WARN_SYMBOL"
-    message warning "${1}" "${2}"
+    __message warning "${1}" "${2}"
+
+    if [ -z "$2" ] || [ "$SHOW_OUTPUT" -eq 0 ]; then
+        printf "\n"
+    fi
 }
 
-fail() {
+__fail() {
     sek=$((sek-1))
     printf "\b%s\n" "$FAIL_SYMBOL"
-    message error "${1}" "${2}"
+    __message error "${1}" "${2}"
+
+    if [ -z "$2" ] || [ "$SHOW_OUTPUT" -eq 0 ]; then
+        printf "\n"
+    fi
     HAS_ERRORS=1
 }
