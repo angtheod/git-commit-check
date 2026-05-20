@@ -6,7 +6,7 @@ before_run() {
     STAGED_FRONTEND_FILES=$(git diff --cached --name-only --diff-filter=ACMR HEAD | grep -E '\.('"$FILE_TYPES"')$')
     COMMAND="prettier --check $STAGED_FRONTEND_FILES"
     COMMAND_NAME="Prettier"
-    COMMAND_VERSION="$(prettier --version)"
+    COMMAND_VERSION="prettier --version"
 }
 
 # [Execute]
@@ -15,32 +15,35 @@ run() {
 
     exit=$?
 
-    if [ "$exit" -eq 2 ]; then # syntax error
-        fail "$HEADER" "$output"
+    if [ "$exit" -eq 127 ]; then
+        __fail "$HEADER" "  $COMMAND_NAME not found."
+        return
+    elif [ "$exit" -eq 2 ]; then # syntax error
+        __fail "$HEADER" "$output"
         return
     elif [ "$exit" -eq 1 ]; then # formatting error
-        fail "$HEADER" "$output"
+        __fail "$HEADER" "$output"
 
         output2=$(prettier --write "$STAGED_FRONTEND_FILES" --log-level silent)
 
         exit2=$?
 
         if [ "$exit2" -ne 0 ]; then
-            fail "$HEADER" "$output2"
+            __fail "$HEADER" "$output2"
             return
         else
             git add "$STAGED_FRONTEND_FILES"
 
-            MESSAGE="Code format was fixed and changes were staged. Please run this check again."
+            MESSAGE=" Code format was fixed and changes were staged. Please run this check again."
 
             printf "   %s\n" "$MESSAGE"
-            log info "$HEADER" "$MESSAGE"
+            __log info "$HEADER" "$MESSAGE"
 
             return
         fi
     fi
 
-    log info "$HEADER" "Pass."
+    __log info "$HEADER" "Pass."
 
-    pass
+    __pass
 }

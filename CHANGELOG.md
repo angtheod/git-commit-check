@@ -5,10 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (as of version 0.1.0).
 
+## [0.6.0] `2026-05-20`
+
+### Added
+- Add '__handle_before_run', '__handle_run' & '__handle_after_run' shell functions.
+  - Shell functions '__handle_run' and '__handle_after_run' check if there is a user-defined 'run' and 'after_run' function respectively. If not, then they call the default '__run' and '__after_run' functions respectively.
+- Add directory `scripts/use` where the user should place all script-checks that gitcc should call.
+- Add configuration option for enabling/disabling all checks entirely (produces warning when disabled).
+
+### Changed
+- All gitcc shell function names now begin with double underscore e.g., '__func' and by convention user shell function names should not begin with it.
+- Simplify/minimize the shell code required to use a new check-script.
+  - User now must implement only one shell function 'before_run'.
+  - Shell functions 'run' and 'after_run' are optional to implement and may override '__run' and '__after_run' entirely or partially.
+- Rename directory `scripts/prepared` to `scripts/library`.
+- Improve library scripts.
+- Improve configuration.
+- Improve console interface.
+
+### Fixed
+- Fix bug when a user-level script defines a command that is not available/installed and shell can't find it. 
+- Fix bug due to getting the version of a command by executing a sub-shell command on user-level.
+  - Now only a string representation of the version command is required on user-level.
+
+
 ## [0.5.0] `2026-05-16`
 
 ### Changed
-- Restructured the script template file. Developers now have to implement the 'before_run' and 'run' functions within their script.
+- Restructure the script template file. Developers now have to implement the 'before_run' and 'run' functions within their script.
   - Function 'before_run' must be implemented. Should initialize certain variables.
   - Function 'run' must be implemented. Should contain the check's logic. A typical use case is included in the template script file.
   - Function 'after_run' may be implemented. May contain any post-check actions.
