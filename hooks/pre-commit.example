@@ -11,7 +11,7 @@ SHELL="/bin/sh"
 COMMAND="$GITCC_PATH/gitcc"
 
 if [ -z "$CONTAINER_ENGINE" ]; then
-    $COMMAND
+    $SHELL "$COMMAND"
 else
-    $CONTAINER_ENGINE exec -tw "$PROJECT_PATH" "$CONTAINER_NAME" "$SHELL" -c "$COMMAND"
+    $CONTAINER_ENGINE exec -tw "$PROJECT_PATH" "$CONTAINER_NAME" sh -c "$SHELL $COMMAND"
 fi

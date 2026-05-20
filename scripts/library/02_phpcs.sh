@@ -8,17 +8,17 @@ before_run() {
 # [Execute]
 run() {
     if [ "$HAS_SYNTAX_ERRORS" -ne 0 ]; then
-        fail "$HEADER" " ${MESSAGE_SYMBOL}Found syntax errors that block this check."
+        __fail "$HEADER" "  ${MESSAGE_SYMBOL}Found syntax errors that block this check."
         return
     else
         COMMAND_NAME="CodeSniffer"
-        COMMAND_VERSION="$(./vendor/bin/phpcs --version)"
+        COMMAND_VERSION="./vendor/bin/phpcs --version"
     fi
 
     STAGED_PHP_FILES=$(git diff --cached --name-only --diff-filter=ACMR HEAD | grep .php)
 
     if [ -z "$STAGED_PHP_FILES" ]; then
-        warn "$HEADER" "No staged PHP files."
+        __warn "$HEADER" " No staged PHP files."
         return
     fi
 
@@ -31,11 +31,11 @@ run() {
     exit=$?
 
     if [ "$exit" -ne 0 ]; then
-        fail "$HEADER" "$output"
+        __fail "$HEADER" "$output"
         return
     fi
 
-    log info "$HEADER" "Pass."
+    __log info "$HEADER" "Pass."
 
-    pass
+    __pass
 }

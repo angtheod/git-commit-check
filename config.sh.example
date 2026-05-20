@@ -3,12 +3,26 @@
 PROJECT_PATH="/path/to/project"          # Absolute path to the project, e.g. /var/www/my-project
 GITCC_PATH="path/to/gitcc"               # Relative path to the project, e.g. "bin/git-commit-check"
 GITCC_REPORTS_PATH="$GITCC_PATH/reports"
-GITCC_SCRIPTS_PATH="$GITCC_PATH/scripts"
+GITCC_SCRIPTS_USE_PATH="$GITCC_PATH/scripts/use"
 
 cd "$PROJECT_PATH" || exit
 
-# [script IDs] - Set the ids of those scripts that should be executed. To disable all scripts, set an empty string.
-ENABLED="01,02,03,04,05,06,07,08,09"
+# Set 0 to disable all checks.
+CHECKS_ENABLED=1
+
+# Add the file names of all the scripts located under the 'scripts/use' directory separated by a line.
+# Prepend a '#' to any file name that you want to disable e.g., #03_php_artisan_test.sh
+SCRIPTS_ENABLED="
+01_php_lint.sh
+02_phpcs.sh
+03_php_artisan_test.sh
+04_composer_audit.sh
+05_eslint.sh
+06_prettier.sh
+07_tsc.sh
+08_npm_audit.sh
+09_vite_build.sh
+"
 
 # [interface]
 SHOW_OUTPUT=1
@@ -19,10 +33,16 @@ RED="\e[0;31m"
 BRED="\e[1;31m"     # Bold red.
 GREEN="\e[0;32m"
 YELLOW="\e[0;33m"
+WHITE="\033[38;5;15m"
 CYAN="\e[0;36m"
+DARKSEAGREEN3="\033[48;5;115m"
+BLUE="\033[38;5;12m"
 BOLD="\e[1m"
+UNDERLINED="\033[4m"
+INVERT="\033[7m"
 NC="\e[0m"          # No color/modifier.
 SECTION_SYMBOL=""
+STAR_SYMBOL=✰
 HEADER_SYMBOL=➡️
 MESSAGE_SYMBOL=""
 LOG_SYMBOL=📋
@@ -38,6 +58,8 @@ FAIL_SYMBOL=🔴
 LOG=1
 LOG_FILE="./path/to/log-file"
 LOG_FORMAT="[%s] local.%s: %s\nMessage: %s" # datetime, log level, header, message
+LOG_URL="https://www.my-app.com/logs"
 
-# [log link]
-LOG_URL="https://www.example.com/logs"
+# [github]
+GITHUB=0
+GITHUB_URL="https://github.com/angtheod/git-commit-check"

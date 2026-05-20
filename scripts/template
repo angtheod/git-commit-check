@@ -1,36 +1,23 @@
 #!/bin/sh
-# [Initialise] TODO - 1. Implement function 'before_run'. Fill in the values for the following variables.
+# [MUST implement] TODO: MUST implement function 'before_run'. Fill in the values for the following variables.
 before_run() {
-  HEADER="MY HEADER"
-  COMMAND="my_command"
-  COMMAND_NAME="My Command"
-  COMMAND_VERSION="$(my_command --version)"
+    HEADER="MY HEADER"
+    COMMAND="my_command"
+    COMMAND_NAME="My Command"
+    COMMAND_VERSION="my_command --version"
 }
 
-# [Execute] # TODO - 2. Implement function 'run'. Add script's custom logic here.
+# [MAY implement] TODO: MAY implement function 'run' with custom logic which overrides default function '__run'.
 run() {
-  # ...
+    # custom ...
+    # logic ...
 
-  # TODO - 3. Pass the command output to a variable and if not successful call the 'fail' function. Typical use case:
-  output=$(${COMMAND} 2>&1)
-
-  exit=$?
-
-  if [ "$exit" -ne 0 ]; then
-    fail "$HEADER" "$output"
-    return
-  fi
-
-  log info "$HEADER" "Pass." # TODO - 4. Optional: Log a success message or the command's successful output.
-
-  pass # TODO - 5. Call the 'pass' function at the end of the script.
-
-  # pass "$HEADER" "Pass." # Alternatively, you may pass 2 arguments
-  # to the 'pass' function to show a message and create a log file entry.
+    # TODO: MAY call the default '__run' function which will execute the command and handle the output
+    __run
 }
 
-# [Finalise] TODO - 6. Optional: Implement function 'after_run' to perform post-check actions.
+# [MAY implement] TODO: MAY implement function 'after_run' to perform post-check actions.
 after_run() {
-  # For example, you may call the add_about_info function multiple times to print multiple lines in the about section.
-  add_about_info "command2 name" "$(command2 --version)"
+    # For example, you may call the add_about_info function multiple times to print multiple lines in the about section.
+    __add_about_info "command2 name" "command2 --version"
 }

@@ -1,8 +1,11 @@
 #!/bin/sh
 # Git Commit Check (gitcc)
-# Version: 0.5.0
-# Github repo: https://github.com/angtheod/git-commit-check
+# Version: 0.6.0
+# Github: https://github.com/angtheod/git-commit-check
 # Author: Angelos Theodorakopoulos <angtheod@gmail.com>
+
+VERSION=0.6.0
+SUPPORT_EMAIL=angtheod@gmail.com
 
 # Change to the directory of the script and source the required scripts.
 cd "$(dirname "$0")" || exit 1
@@ -10,108 +13,128 @@ cd "$(dirname "$0")" || exit 1
 cd "$(dirname "$0")" || exit 1
 . ./lib.sh
 
-init() {
+__init() {
     START=$(date +%s)
     HAS_ERRORS=0
     HAS_SYNTAX_ERRORS=0
 }
 
-header() {
-    line3 "╔" "╗" $((WIDTH+8)) "═"
-    printf "  %s${CYAN}Load\n" "$SECTION_SYMBOL"
-    line "Configuration" "${1:-./config.sh}"
+__header() {
+    __line3 "╔" "╗" $((WIDTH+8)) "═"
+
+    printf "  $INVERT%s" ""
+    __line3 "Git Commit Check v$VERSION" "Support: mailto:$SUPPORT_EMAIL" $((WIDTH)) " "
+    [ "$GITHUB" -eq 1 ] && __line3 "" "GitHub: $GITHUB_URL" $((WIDTH+2)) " "
+    printf "$NC%s\n" ""
+
+    printf "  %s${BLUE}Load\n" "$SECTION_SYMBOL"
+    __line "Configuration" "${1:-./config.sh}"
+    __line "Shell" "$(__get_current_shell)"
+    printf "$NC%s" ""
 }
 
-check() {
-    [ -n "$ENABLED" ] && printf "\n  %s${CYAN}Check${NC}\n" "$SECTION_SYMBOL"
+__checks() {
+    scripts=$(find "$GITCC_SCRIPTS_USE_PATH" -type f -name '*.sh' | sort)
 
-    for script in $(find "$GITCC_SCRIPTS_PATH" -type f -name '*.sh' | sort); do
-        _name=$(basename "$script")
-        _id="${_name%%_*}"
+    if [ -z "$scripts" ]; then
+        printf "\n  $YELLOW%s$NC\n" "No scripts found in '$GITCC_SCRIPTS_USE_PATH'."
+        return
+    fi
+
+    if [ "$CHECKS_ENABLED" -eq 0 ]; then
+        printf "\n  $YELLOW%s$NC\n" "Checks disabled via configuration."
+        __log warning "Warning" "Checks disabled via configuration."
+        return
+    fi
+
+    [ -n "$SCRIPTS_ENABLED" ] && printf "\n  %s${BLUE}Check${NC}\n" "$SECTION_SYMBOL"
+
+    for script in $scripts; do
+        _script_name=$(basename "$script")
 
         # Check if the script is enabled in the configuration and then source the script
         # so that it runs in the same shell process and the variables are accessible within it.
-        if contains_string "$_id" "$ENABLED"; then
-            before_run_check "$script"
-            run_check
-            after_run_check
+        if __contains_string "$_script_name" "$SCRIPTS_ENABLED"; then
+            __handle_before_run "$script"
+            __handle_run
+            __handle_after_run
         fi
     done
 }
 
-before_run_check() {
-    if [ $# -eq 0 ]; then
-        printf "(Unknown)\n"
-        return 1
-    fi
-
-    script=$1
-
-    # Initialise variables.
-    HEADER=""
-    COMMAND_NAME=""
-    COMMAND_VERSION=""
-
-    unset -f after_run # Clear the 'after_run' shell function before sourcing the script.
-
-    . "$script"
-
-    before_run # Call user's before run function.
-
-    line2 "$HEADER" "$LOAD_SYMBOL"
+__handle_before_run() {
+    __before_run "$@"
 }
 
-run_check() {
-    run
+# Check if there is a user-defined 'run' function, otherwise execute the default '__run' function.
+__handle_run() {
+    if type run > /dev/null 2>&1; then # Call the function 'run' only if the user-script implements it.
+        run
+        unset -f run
+    else
+        __run
+    fi
 }
 
-after_run_check() {
-    if [ "$COMMAND_NAME" != "" ] && [ "$COMMAND_VERSION" != "" ]; then
-        add_about_info "$COMMAND_NAME" "$COMMAND_VERSION"
-    fi
-
-    if type after_run > /dev/null 2>&1; then # Call the function 'after_run' only if the script implements it.
+# Check if there is a user-defined 'after_run' function, otherwise execute the default '__after_run' function.
+__handle_after_run() {
+    if type after_run > /dev/null 2>&1; then # Call the function 'after_run' only if the user-script implements it.
         after_run
+        unset -f after_run
+    else
+        __after_run
     fi
 }
 
-about() {
+__about() {
     if [ "$SHOW_ABOUT" = 0 ] || [ -z "$ABOUT" ]; then
         return
     fi
 
-    printf "\n  %s${CYAN}About\n" "$SECTION_SYMBOL"
+    printf "\n  %s${BLUE}About\n" "$SECTION_SYMBOL"
 
-    split_about_info | while IFS='|' read -r left right; do
-        line "$left" "$(extract_version "$right")"
+    __split_about_info | while IFS='|' read -r left right; do
+        version=$($right 2>&1)
+
+        exit=$?
+
+        if [ "$exit" -eq 127 ]; then
+            version=""
+        fi
+
+        __line "$left" "$(__extract_version "$version")"
     done
+
+    printf "${NC}%s" ""
 }
 
-footer() {
-    line3 "╚" "╝" $((WIDTH+8)) "═"
+__footer() {
+    printf "${BOLD}%s" ""
+    __line3 "╚" "╝" $((WIDTH+8)) "═"
+    printf "${NC}%s" ""
 
     END=$(date +%s)
     time=$((END-START))
 
     if [ "$SHOW_LOG_URL" -eq 1 ]; then
-        line3 "$LOG_SYMBOL $LOG_URL" "$TIME_SYMBOL ${time}sec" "$((WIDTH+7))" " "
+        __line3 "$LOG_SYMBOL $LOG_URL" "$TIME_SYMBOL ${time}sec" "$((WIDTH+8))" " "
     else
-        line3 "" "$TIME_SYMBOL ${time}sec" "$((WIDTH+7))" " "
+        __line3 "" "$TIME_SYMBOL ${time}sec" "$((WIDTH+8))" " "
     fi
 }
 
-main() {
-    init
-    header
-    check
-    about
-    footer
+__main() {
+    __init
+    __header
+    __checks
+    __about
+    __footer
 
     if [ "$HAS_ERRORS" -ne 0 ]; then
         exit 1
     fi
 }
 
-main
+__main
 
 exit $?
