@@ -1,5 +1,5 @@
 #!/bin/sh
-# [MUST implement] TODO: MUST implement function 'before_run'. Fill in the values for the following variables.
+# TODO: [MUST implement] function 'before_run'. Fill in the values for the following variables.
 before_run() {
     HEADER="MY HEADER"
     COMMAND="my_command"
@@ -7,17 +7,15 @@ before_run() {
     COMMAND_VERSION="my_command --version"
 }
 
-# [MAY implement] TODO: MAY implement function 'run' with custom logic which overrides default function '__run'.
+# [MAY implement] function 'run' with custom logic which overrides default function '__run'.
 run() {
-    # custom ...
-    # logic ...
+    # custom logic ...
 
-    # TODO: MAY call the default '__run' function which will execute the command and handle the output
-    __run
+    __run # MAY call the default '__run' function which will execute the command and handle the output.
 }
 
-# [MAY implement] TODO: MAY implement function 'after_run' to perform post-check actions.
+# [MAY implement] function 'after_run' to perform post-check actions.
 after_run() {
-    # For example, you may call the add_about_info function multiple times to print multiple lines in the about section.
+    # MAY call the 'add_about_info' function multiple times to print multiple lines in the about section.
     __add_about_info "command2 name" "command2 --version"
 }

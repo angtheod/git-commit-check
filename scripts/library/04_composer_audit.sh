@@ -10,34 +10,40 @@ before_run() {
 # [Execute]
 run() {
     if (! composer --version | grep -q "2\.[4-9]") >/dev/null 2>&1; then
-        __fail "$HEADER" " ${MESSAGE_SYMBOL}Composer audit requires version 2.4 or later"
+        __fail "$HEADER" " ${MESSAGE_SYMBOL}Composer audit requires composer version 2.4 or later."
         return
     fi
 
     REPORT="$GITCC_REPORTS_PATH/composer-audit.json"
 
-    ${COMMAND} >"$REPORT" 2>&1
+    ${COMMAND} > "$REPORT" 2>&1
 
-    # Catch a possible network error
+    # Check for network error.
     if [ "$?" = "100" ]; then
         __fail "$HEADER" "  This error probably indicates you are offline or have misconfigured DNS resolver(s).
      See ${BOLD}${REPORT}${NC}"
         return
     fi
 
-    auditFile=$(cat "$REPORT")
-    advisories=$(printf '%s' "$auditFile" | jq -r '.advisories | length')
-    abandoned=$(printf '%s' "$auditFile" | jq -r '.abandoned | length')
-
-    if [ "$abandoned" -ne 0 ]; then
-        __warn "$HEADER" "  ${MESSAGE_SYMBOL}Found ${BOLD}${abandoned}${NC} abandoned composer package(s).
-     See ${BOLD}${REPORT}${NC}"
+    if ! __parse_composer_audit "$REPORT"; then
         return
     fi
 
-    if [ "$advisories" -ne 0 ]; then
-        __warn "$HEADER" "  ${MESSAGE_SYMBOL}Found vulnerabilities in ${BOLD}${advisories}${NC} composer package(s).
-     See ${BOLD}${REPORT}${NC}"
+    if [ "$abandoned" -ne 0 ] || [ "$advisories" -ne 0 ]; then
+        message=""
+
+        if [ "$advisories" -ne 0 ]; then
+            message="$message  ${MESSAGE_SYMBOL}Found ${BOLD}${advisoryIds}${NC} vulnerabilities in ${BOLD}${advisories}${NC} composer package(s)."
+        fi
+
+        if [ "$abandoned" -ne 0 ]; then
+            message="$message\n     ${MESSAGE_SYMBOL}Found ${BOLD}${abandoned}${NC} abandoned composer package(s)."
+        fi
+
+        message="$message\n     See ${BOLD}${REPORT}${NC}"
+
+        __warn "$HEADER" "$message"
+
         return
     fi
 
