@@ -1,4 +1,10 @@
 .idea
+.DS_Store
+
 config.sh
 hooks/pre-commit
-.DS_Store
+gitcc.sh
+core.sh
+libutils.sh
+*.x.c
+

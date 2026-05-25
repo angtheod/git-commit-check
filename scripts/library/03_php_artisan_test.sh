@@ -3,6 +3,8 @@
 before_run() {
     HEADER="BACKEND TESTS"
     COMMAND="php artisan test --compact --color=always"
+    COMMAND_NAME="PHPUnit"
+    COMMAND_VERSION="./vendor/bin/phpunit --version"
 }
 
 # [Execute]
@@ -23,11 +25,12 @@ run() {
     if [ "$HAS_SYNTAX_ERRORS" -ne 0 ]; then
         __fail "$HEADER" "  ${MESSAGE_SYMBOL}Found syntax errors that block this check."
         return
-    else
-        COMMAND_NAME="PHPUnit"
-        COMMAND_VERSION="./vendor/bin/phpunit --version"
-        __add_about_info "Laravel" "php artisan --version"
     fi
 
     __run
+}
+
+# [Finalise]
+after_run() {
+    __add_about_info "Laravel" "php artisan --version"
 }

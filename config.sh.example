@@ -2,10 +2,11 @@
 # [general]
 PROJECT_PATH="/path/to/project"          # Absolute path to the project, e.g. /var/www/my-project
 GITCC_PATH="path/to/gitcc"               # Relative path to the project, e.g. "bin/git-commit-check"
-GITCC_REPORTS_PATH="$GITCC_PATH/reports"
-GITCC_SCRIPTS_USE_PATH="$GITCC_PATH/scripts/use"
+CONTAINER_NAME="container_name"
+SHELL="/bin/sh"
 
-cd "$PROJECT_PATH" || exit
+# Set 0 to force gitcc to ignore any containers.
+FORCE_CONTAINER_RUN=1
 
 # Set 0 to disable all checks.
 CHECKS_ENABLED=1
