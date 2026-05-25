@@ -13,13 +13,9 @@ run() {
 
     ${COMMAND} > "$REPORT" 2>&1
 
-    __parse_npm_audit "$REPORT"
-    exit=$?
+    # Npm audit returns 1 on both successful and failed requests, so we can't check for network error.
 
-    # Catch a possible network error. Unfortunately, npm audit returns 1 on both successful and failed requests.
-    if [ "$exit" -eq 2 ]; then
-        __fail "$HEADER" "  The parsing of the Report file failed. Possible network error!
-     See ${BOLD}${REPORT}${NC}"
+    if ! __parse_npm_audit "$REPORT"; then
         return
     fi
 
@@ -27,8 +23,8 @@ run() {
         __warn "$HEADER" "  ${MESSAGE_SYMBOL}Critical: (${BRED}${critical}${NC})
      High:     (${RED}${high}${NC})
      Moderate: (${YELLOW}${moderate}${NC})
-     Low:      (${GREEN}${low}${NC})\n
-     Found ${BOLD}${total}${NC} vulnerabilities in ${BOLD}${modules}${NC} node module(s). Run ${BOLD}npm audit fix${NC} to upgrade those packages.
+     Low:      (${GREEN}${low}${NC})
+     Found ${BOLD}${total}${NC} vulnerabilities in ${BOLD}${modules}${NC} node module(s).
      See ${BOLD}${REPORT}${NC}"
         return
     fi

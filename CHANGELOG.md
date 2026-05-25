@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (as of version 0.1.0).
 
+## [0.7.0] `2026-05-25`
+
+### Added
+- Add `bin/arm64` & `bin/x86_64` directories with the binaries for gitcc, core and libutils for arm64 and amd64 platforms respectively.
+- Use the binaries instead of the shell scripts.
+- Add core binary file.
+- Add parse_composer_audit function in libutils.
+- Add configuration for force running gitcc within container (enabled by default).
+
+### Changed
+- Move core logic from gitcc binary to core binary.
+- The gitcc binary now contains the logic for booting the shell process and executing the right binaries according to configuration.
+- Simplify even more the user-level scripts. Move logic from user-level scripts to libutils.
+- Simplify configuration. Now only 4 variables need to be configured by the user (PROJECT_PATH, GITCC_PATH, CONTAINER_NAME & SHELL)
+- Update README
+
+### Removed
+- Remove logic from the pre-commit hook script, to simplify the process for the user
+  - Now it contains only one-line command that will start the correct gitcc process.
+
+### Fixed
+- Fix bug for composer_audit script with the total vulnerabilities count not showing.
+
+
 ## [0.6.0] `2026-05-20`
 
 ### Added
