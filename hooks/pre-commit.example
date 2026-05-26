@@ -1,2 +1,2 @@
 #!/bin/sh
-./bin/"$(uname -m)"/gitcc
+./bin/git-commit-check/bin/"$(uname -m)"/gitcc
