@@ -11,6 +11,9 @@ FORCE_CONTAINER_RUN=1
 # Set 0 to disable all checks.
 CHECKS_ENABLED=1
 
+# Set 1 to skip prompting user for confirmation when there are warnings.
+FORCE_IGNORE_WARNINGS=0
+
 # Add the file names of all the scripts located under the 'scripts/use' directory separated by a line.
 # Prepend a '#' to any file name that you want to disable e.g., #03_php_artisan_test.sh
 SCRIPTS_ENABLED="
@@ -60,7 +63,3 @@ LOG=1
 LOG_FILE="./path/to/log-file"
 LOG_FORMAT="[%s] local.%s: %s\nMessage: %s" # datetime, log level, header, message
 LOG_URL="https://www.my-app.com/logs"
-
-# [github]
-GITHUB=0
-GITHUB_URL="https://github.com/angtheod/git-commit-check"
