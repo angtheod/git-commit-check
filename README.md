@@ -6,7 +6,7 @@
 ##### *Please Give a Star to this repo, if you liked it!*
 
 May be used as a pre-commit git hook, as part of a CI/CD pipeline or as a standalone tool.
-Tested on the following platforms: `x86_64, arm64` and the following shells: `sh, bash, dash`
+Supports the following platforms: `x86_64, arm64`.
 
 ##### Steps to use:
 1. Download the latest git-commit-check release and place it within your repository.
