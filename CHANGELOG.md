@@ -5,14 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) (as of version 0.1.0).
 
+## [0.9.0] `2026-05-27`
+
+### Added
+- Add shell function `__prompt` in libutils for prompting the user with a question and wait for a yes (y/Y/yes/YES) or no (anything else) input.
+- Add user prompt to confirm before continuing, when there is 1 or more checks disabled via configuration.
+- Add configuration option for skipping the user prompt when there are disabled checks.
+- Include the total count of Disabled checks, after all the checks have finished.
+
+### Changed
+- Increase POSIX compliance of the gitcc, core & libutils shell scripts.
+- Remove the variables passed as part of format string of the printf calls and pass them as additional arguments instead.
+
+
 ## [0.8.0] `2026-05-27`
 
 ### Added
-- Show total count of Passed, Warned and Failed checks, after all the checks have finished. 
+- Show total count of Passed, Warned and Failed checks, after all the checks have finished.
 - Add shell function `__after_checks` to add logic after all checks have finished running. Can be overriden by implementing user-level `after_checks` shell function
 - Add shell function `__is_installed` to check if a command is installed.
-- Add user prompt to confirm before continuing to commit, when there is 1 or more warnings produced by the checks.
-- Add configuration option for the user prompt.
+- Add user prompt to confirm before continuing, when there is 1 or more warnings produced by the checks.
+- Add configuration option for skipping the user prompt when there are warnings produced.
 
 ### Changed
 - Refactor some small parts.
